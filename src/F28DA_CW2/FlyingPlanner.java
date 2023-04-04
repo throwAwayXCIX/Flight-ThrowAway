@@ -349,44 +349,53 @@ public class FlyingPlanner implements IFlyingPlannerPartB<Airport,Flight>, IFlyi
 	}
 
 	@Override
-	public String leastTimeMeetUp(String at1, String at2, String startTime) throws FlyingPlannerException {		
+	public String leastTimeMeetUp(String at1, String at2, String startTime) throws FlyingPlannerException {	
 		List<String> codeList = codeList(at1, at2);
 		
 		int minTime = Integer.MAX_VALUE;
 		String minCode = null;
 		
-		int minTime1 = Integer.MAX_VALUE;
-		String minCode1 = null;
-		
-		int minTime2  =Integer.MAX_VALUE;
-		String minCode2 = null;
-		
 		for(String code : codeList) {
+			
 			Journey j1 = leastTime(at1, code);
 			Flight firstFlight1 = flight(j1.getFlights().get(0));
 			int waitTime1 = timeDuration(startTime, firstFlight1.getFromGMTime());
 			int j1Time = j1.totalTime();
 			int time1 = waitTime1 + j1Time;
-			if(time1 < minTime1) {
-				minTime1 = time1;
-				minCode1 = code;
-			}
-			
+				
 			Journey j2 = leastTime(at2, code);
 			Flight firstFlight2 = flight(j2.getFlights().get(0));
 			int waitTime2 = timeDuration(startTime, firstFlight2.getFromGMTime());
 			int j2Time = j2.totalTime();
 			int time2 = waitTime2 + j2Time;
-			if(time2 < minTime2) {
-				minTime2 = time2;
-				minCode2 = code;
+			
+			if(time1 < time2) {
+				if(time1 < minTime) {
+					minTime = time1;
+					minCode = code;
+				} else {
+					continue;
+				}
 			}
 			
-			if(minTime1 < minTime2) {
-				minCode = minCode1;
-			} else {
-				minCode = minCode2;
+			else if(time2 < time1) {
+				if(time2 < minTime) {
+					minTime = time2;
+					minCode = code;
+				} else {
+					continue;
+				}
 			}
+			
+			else {
+				if(time1 < minTime) {
+					minTime = time1;
+					minCode = code;
+				} else {
+					continue;
+				}
+			}
+			
 		}
 		
 		return minCode;
@@ -430,7 +439,7 @@ public class FlyingPlanner implements IFlyingPlannerPartB<Airport,Flight>, IFlyi
 		return aCodeList;
 	}
 
-	private Journey leastTime(String from, String to) throws FlyingPlannerException {
+	public Journey leastTime(String from, String to) throws FlyingPlannerException {
 		Airport fromA = airport(from);
 		Airport toA = airport(to);
 		
@@ -449,6 +458,7 @@ public class FlyingPlanner implements IFlyingPlannerPartB<Airport,Flight>, IFlyi
 		Journey journey = new Journey(path);
 		return journey;
 	}
+
 }
 
 
